@@ -1,0 +1,47 @@
+
+gpz_run1.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+gpzrun6
+  rotate: false
+  xy: 2, 2
+  size: 40, 62
+  orig: 40, 62
+  offset: 0, 0
+  index: -1
+gpzrun5
+  rotate: false
+  xy: 44, 2
+  size: 40, 62
+  orig: 40, 62
+  offset: 0, 0
+  index: -1
+gpzrun4
+  rotate: false
+  xy: 86, 2
+  size: 40, 62
+  orig: 40, 62
+  offset: 0, 0
+  index: -1
+gpzrun3
+  rotate: false
+  xy: 128, 2
+  size: 40, 62
+  orig: 40, 62
+  offset: 0, 0
+  index: -1
+gpzrun2
+  rotate: false
+  xy: 170, 2
+  size: 40, 62
+  orig: 40, 62
+  offset: 0, 0
+  index: -1
+gpzrun1
+  rotate: false
+  xy: 212, 2
+  size: 40, 62
+  orig: 40, 62
+  offset: 0, 0
+  index: -1

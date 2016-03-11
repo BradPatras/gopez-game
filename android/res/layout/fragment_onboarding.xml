@@ -1,0 +1,31 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    tools:context="com.iboism.gopez.fragment.OnboardingFragment"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <ImageView android:id="@+id/robo_image"
+        android:layout_width="300dp"
+        android:layout_height="250dp"
+        android:src="@drawable/robocool"
+        android:layout_centerInParent="true"
+        android:scaleType="centerInside"/>
+
+    <TextView android:id="@+id/splash_text"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="sans-serif-thin"
+        android:textColor="#bfbfbf"
+        android:textSize="28dp"
+        android:shadowColor="#000"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="iboism"
+        android:layout_alignBottom="@id/robo_image"/>
+
+</RelativeLayout>

@@ -1,0 +1,42 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#414141"
+    tools:context="com.mygdx.gopez.android.MainMenuActivity"
+    android:id="@+id/content_view">
+
+    <!-- The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc. -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <View android:id="@+id/center_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_centerInParent="true"
+            android:layout_margin="20dp"/>
+
+        <TextView android:id="@+id/main_menu_new"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_blue_bright"
+            android:textSize="26dp"
+            android:layout_centerHorizontal="true"
+            android:layout_above="@id/center_view"
+            android:text="new"/>
+
+        <TextView android:id="@+id/main_menu_resume"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_blue_bright"
+            android:textSize="26dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/center_view"
+            android:text="resume"/>
+
+    </RelativeLayout>
+
+</FrameLayout>
