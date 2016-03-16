@@ -10,20 +10,23 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
-public class MainGame extends ApplicationAdapter {
+public class MainGame extends ApplicationAdapter implements GestureDetector.GestureListener {
 	SpriteBatch batch;
 	Texture img;
 	private AssetManager assets;
 	private TextureAtlas atlas;
 	private float elapsed;
 	OrthographicCamera camera;
-
 	Animation animation;
 
 	@Override
 	public void create () {
+		Gdx.input.setInputProcessor(new GestureDetector(this));
 		batch = new SpriteBatch();
 		img = new Texture("gpz_run1.png");
 		assets = new AssetManager();
@@ -36,16 +39,72 @@ public class MainGame extends ApplicationAdapter {
 		Array<TextureAtlas.AtlasRegion> runAnimations = atlas.getRegions();
 		runAnimations.reverse();
 		animation = new Animation(1f/8f,runAnimations);
+
 	}
 
 	@Override
 	public void render () {
 		elapsed += Gdx.graphics.getDeltaTime();
 		batch.setProjectionMatrix(camera.combined);
-		Gdx.gl.glClearColor(.5f,.5f,.5f,1);
+		Gdx.gl.glClearColor(.5f, .5f, .5f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
-		batch.draw(animation.getKeyFrame(elapsed, true),0,0);
+		TextureRegion keyframe =animation.getKeyFrame(elapsed, true);
+		batch.draw(keyframe,0,0);
 		batch.end();
+	}
+
+	@Override
+	public boolean touchDown(float x, float y, int pointer, int button) {
+		if (x < Gdx.graphics.getWidth()/2) {
+			for (TextureRegion t : animation.getKeyFrames()) {
+				if (!t.isFlipX())
+					t.flip(true, false);
+
+			}
+		} else {
+			for (TextureRegion t : animation.getKeyFrames()) {
+				if (t.isFlipX())
+					t.flip(true, false);
+
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean tap(float x, float y, int count, int button) {
+
+		return false;
+	}
+
+	@Override
+	public boolean longPress(float x, float y) {
+		return false;
+	}
+
+	@Override
+	public boolean fling(float velocityX, float velocityY, int button) {
+		return false;
+	}
+
+	@Override
+	public boolean pan(float x, float y, float deltaX, float deltaY) {
+		return false;
+	}
+
+	@Override
+	public boolean panStop(float x, float y, int pointer, int button) {
+		return false;
+	}
+
+	@Override
+	public boolean zoom(float initialDistance, float distance) {
+		return false;
+	}
+
+	@Override
+	public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
+		return false;
 	}
 }
