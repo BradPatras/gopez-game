@@ -18,8 +18,10 @@ import com.badlogic.gdx.utils.Array;
 public class MainGame extends ApplicationAdapter implements GestureDetector.GestureListener {
 	SpriteBatch batch;
 	Texture img;
+	Texture bk;
 	private AssetManager assets;
 	private TextureAtlas atlas;
+	private TextureAtlas bkAtlas;
 	private float elapsed;
 	OrthographicCamera camera;
 	Animation animation;
@@ -31,12 +33,15 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		img = new Texture("gpz_run1.png");
 		assets = new AssetManager();
 		assets.load("gpzrun.pack", TextureAtlas.class);
+		assets.load("gpz_bkg.pack", TextureAtlas.class);
 		assets.finishLoading();
 
-		camera = new OrthographicCamera(135,200);
+		bkAtlas = assets.get("gpz_bkg.pack");
 
+		camera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		atlas = assets.get("gpzrun.pack");
 		Array<TextureAtlas.AtlasRegion> runAnimations = atlas.getRegions();
+		Array<TextureAtlas.AtlasRegion> background = bkAtlas.getRegions();
 		runAnimations.reverse();
 		animation = new Animation(1f/8f,runAnimations);
 
@@ -48,9 +53,11 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		batch.setProjectionMatrix(camera.combined);
 		Gdx.gl.glClearColor(.5f, .5f, .5f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
 		batch.begin();
-		TextureRegion keyframe =animation.getKeyFrame(elapsed, true);
-		batch.draw(keyframe,0,0);
+		TextureRegion keyframe = animation.getKeyFrame(elapsed, true);
+		batch.draw(bkAtlas.getRegions().get(0),-Gdx.graphics.getWidth()/2,-Gdx.graphics.getHeight()/2,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		batch.draw(keyframe,(-Gdx.graphics.getWidth()/2) + 50,(-Gdx.graphics.getHeight()/2) + 260, 240, 372);
 		batch.end();
 	}
 

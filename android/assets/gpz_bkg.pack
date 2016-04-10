@@ -1,0 +1,12 @@
+
+gpz_bkg1.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+gpz
+  rotate: false
+  xy: 2, 2
+  size: 640, 400
+  orig: 640, 400
+  offset: 0, 0
+  index: -1
