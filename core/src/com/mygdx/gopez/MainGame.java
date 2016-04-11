@@ -18,13 +18,22 @@ import com.badlogic.gdx.utils.Array;
 public class MainGame extends ApplicationAdapter implements GestureDetector.GestureListener {
 	SpriteBatch batch;
 	Texture img;
-	Texture bk;
+	int bk1;
+	int bk2;
 	private AssetManager assets;
 	private TextureAtlas atlas;
 	private TextureAtlas bkAtlas;
 	private float elapsed;
 	OrthographicCamera camera;
 	Animation animation;
+
+	//Physics variables
+	float gpz_v;
+	float gravity = 1;
+	float gpz_y;
+	float ground_y;
+	boolean jumping;
+
 
 	@Override
 	public void create () {
@@ -33,17 +42,21 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		img = new Texture("gpz_run1.png");
 		assets = new AssetManager();
 		assets.load("gpzrun.pack", TextureAtlas.class);
-		assets.load("gpz_bkg.pack", TextureAtlas.class);
+		assets.load("gpz_bk.pack", TextureAtlas.class);
 		assets.finishLoading();
 
-		bkAtlas = assets.get("gpz_bkg.pack");
+		bkAtlas = assets.get("gpz_bk.pack");
 
 		camera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		atlas = assets.get("gpzrun.pack");
 		Array<TextureAtlas.AtlasRegion> runAnimations = atlas.getRegions();
-		Array<TextureAtlas.AtlasRegion> background = bkAtlas.getRegions();
 		runAnimations.reverse();
 		animation = new Animation(1f/8f,runAnimations);
+		bk1 = -Gdx.graphics.getWidth()/2;
+
+		gpz_v = 0;
+		ground_y = (-Gdx.graphics.getHeight()/2) + 260;
+		gpz_y = ground_y;
 
 	}
 
@@ -56,32 +69,57 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 
 		batch.begin();
 		TextureRegion keyframe = animation.getKeyFrame(elapsed, true);
-		batch.draw(bkAtlas.getRegions().get(0),-Gdx.graphics.getWidth()/2,-Gdx.graphics.getHeight()/2,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		batch.draw(keyframe,(-Gdx.graphics.getWidth()/2) + 50,(-Gdx.graphics.getHeight()/2) + 260, 240, 372);
+		float newWidth = ((float)Gdx.graphics.getHeight()/2)/((float) bkAtlas.getRegions().get(0).originalHeight) * (bkAtlas.getRegions().get(0).originalWidth);
+
+		batch.draw(bkAtlas.getRegions().get(0),bk1,-Gdx.graphics.getHeight()/2, newWidth,Gdx.graphics.getHeight());
+
+		int leftEdge = (-Gdx.graphics.getWidth()/2) - bkAtlas.getRegions().get(0).originalWidth;
+
+		if(bk1 + newWidth < ((Gdx.graphics.getWidth()/2))) {
+			batch.draw(bkAtlas.getRegions().get(0),bk1 + newWidth,-Gdx.graphics.getHeight()/2,newWidth,Gdx.graphics.getHeight());
+		} else if (bk1 + newWidth > (Gdx.graphics.getWidth()/2)) {
+			batch.draw(bkAtlas.getRegions().get(0),bk1 - newWidth,-Gdx.graphics.getHeight()/2,newWidth,Gdx.graphics.getHeight());
+		}
+
+		//if (bk1 < ((-Gdx.graphics.getWidth()/2) - ))
+
+		if (jumping = true) {
+			gpz_y += gpz_v;
+			gpz_v = gpz_v - gravity;
+		}
+
+		if (gpz_y <= ground_y) {
+			gpz_v = 0;
+			gpz_y = ground_y;
+			jumping = false;
+		}
+		if (jumping){
+			batch.draw(atlas.getRegions().get(4), (-Gdx.graphics.getWidth() / 2) + 50, gpz_y, 240, 372);
+
+		} else {
+			batch.draw(keyframe, (-Gdx.graphics.getWidth() / 2) + 50, gpz_y, 240, 372);
+		}
 		batch.end();
+		bk1-=10;
+
+		if (Math.abs(bk1) > (Gdx.graphics.getWidth()/2) + newWidth){
+			bk1 = -Gdx.graphics.getWidth()/2;
+		}
 	}
+
 
 	@Override
 	public boolean touchDown(float x, float y, int pointer, int button) {
-		if (x < Gdx.graphics.getWidth()/2) {
-			for (TextureRegion t : animation.getKeyFrames()) {
-				if (!t.isFlipX())
-					t.flip(true, false);
-
-			}
-		} else {
-			for (TextureRegion t : animation.getKeyFrames()) {
-				if (t.isFlipX())
-					t.flip(true, false);
-
-			}
+		if (!jumping) {
+			gpz_v = 30;
+			jumping = true;
 		}
 		return false;
 	}
 
 	@Override
 	public boolean tap(float x, float y, int count, int button) {
-
+		Gdx.app.log("tap", "x=" + x + "y=" + y);
 		return false;
 	}
 
