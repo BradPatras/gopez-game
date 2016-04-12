@@ -1,0 +1,33 @@
+
+gpz_double_jump1.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+gpzdjump4
+  rotate: false
+  xy: 2, 2
+  size: 40, 62
+  orig: 40, 62
+  offset: 0, 0
+  index: -1
+gpzdjump3
+  rotate: false
+  xy: 44, 2
+  size: 40, 62
+  orig: 40, 62
+  offset: 0, 0
+  index: -1
+gpzdjump2
+  rotate: false
+  xy: 86, 2
+  size: 40, 62
+  orig: 40, 62
+  offset: 0, 0
+  index: -1
+gpzdjump1
+  rotate: false
+  xy: 128, 2
+  size: 40, 62
+  orig: 40, 62
+  offset: 0, 0
+  index: -1

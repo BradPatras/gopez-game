@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -20,12 +19,14 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 	Texture img;
 	int bk1;
 	private AssetManager assets;
-	private TextureAtlas atlas;
+	private TextureAtlas runAtlas;
 	private TextureAtlas bkAtlas;
 	private TextureAtlas jumpAtlas;
+	private TextureAtlas dblJumpAtlas;
 	private float elapsed;
 	OrthographicCamera camera;
-	Animation animation;
+	Animation runAnimation;
+	Animation dblJumpAnimation;
 
 	//Physics variables
 	float gpz_v;
@@ -44,17 +45,22 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		assets.load("gpzrun.pack", TextureAtlas.class);
 		assets.load("gpz_bk.pack", TextureAtlas.class);
 		assets.load("gpzjump.pack", TextureAtlas.class);
+		assets.load("gpzdbljump.pack", TextureAtlas.class);
 		assets.finishLoading();
 
 		bkAtlas = assets.get("gpz_bk.pack");
 		jumpAtlas = assets.get("gpzjump.pack");
-		atlas = assets.get("gpzrun.pack");
+		dblJumpAtlas = assets.get("gpzdbljump.pack");
+		runAtlas = assets.get("gpzrun.pack");
 
 		camera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 
-		Array<TextureAtlas.AtlasRegion> runAnimations = atlas.getRegions();
+		Array<TextureAtlas.AtlasRegion> runAnimations = runAtlas.getRegions();
+		Array<TextureAtlas.AtlasRegion> dblJumpAnimations = dblJumpAtlas.getRegions();
+		dblJumpAnimations.reverse();
 		runAnimations.reverse();
-		animation = new Animation(1f/8f,runAnimations);
+		dblJumpAnimation = new Animation(1f/16f, dblJumpAnimations);
+		runAnimation = new Animation(1f/8f,runAnimations);
 		bk1 = -Gdx.graphics.getWidth()/2;
 
 		gpz_v = 0;
@@ -69,9 +75,9 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		batch.setProjectionMatrix(camera.combined);
 		Gdx.gl.glClearColor(.5f, .5f, .5f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+		TextureRegion keyframe;
 		batch.begin();
-		TextureRegion keyframe = animation.getKeyFrame(elapsed, true);
+
 		float newWidth = ((float) Gdx.graphics.getHeight() / 2) / ((float) bkAtlas.getRegions().get(0).originalHeight) * (bkAtlas.getRegions().get(0).originalWidth);
 
 		batch.draw(bkAtlas.getRegions().get(0), bk1, -Gdx.graphics.getHeight() / 2, newWidth, Gdx.graphics.getHeight());
@@ -96,9 +102,11 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 			batch.draw(jumpAtlas.getRegions().get(0), (-Gdx.graphics.getWidth() / 2) + 50, gpz_y, 240, 372);
 
 		} else if(jumps == 2) {
-			batch.draw(jumpAtlas.getRegions().get(0), (-Gdx.graphics.getWidth() / 2) + 50, gpz_y, 240, 372);
+			keyframe = dblJumpAnimation.getKeyFrame(elapsed, true);
+			batch.draw(keyframe, (-Gdx.graphics.getWidth() / 2) + 50, gpz_y, 240, 372);
 
 		} else {
+			keyframe = runAnimation.getKeyFrame(elapsed, true);
 			batch.draw(keyframe, (-Gdx.graphics.getWidth() / 2) + 50, gpz_y, 240, 372);
 		}
 		batch.end();
