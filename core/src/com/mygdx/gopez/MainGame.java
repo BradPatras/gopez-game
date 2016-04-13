@@ -110,13 +110,14 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 			gpz_y = ground_y;
 			jumps = 0;
 		}
-		if (jumps >0 && jumps % 2 != 0) {
-			batch.draw(jumpAtlas.getRegions().get(0), (-Gdx.graphics.getWidth() / 2) * .9f, gpz_y, gpz_width, gpz_height);
+		if (jumps >0){
+			if (jumps % 2 != 0) {
+				batch.draw(jumpAtlas.getRegions().get(0), (-Gdx.graphics.getWidth() / 2) * .9f, gpz_y, gpz_width, gpz_height);
 
-		} else if(jumps > 0 && jumps % 2 == 0) {
-			keyframe = dblJumpAnimation.getKeyFrame(elapsed, true);
-			batch.draw(keyframe, (-Gdx.graphics.getWidth() / 2) * .9f, gpz_y, gpz_width, gpz_height);
-
+			} else {
+				keyframe = dblJumpAnimation.getKeyFrame(elapsed, true);
+				batch.draw(keyframe, (-Gdx.graphics.getWidth() / 2) * .9f, gpz_y, gpz_width, gpz_height);
+			}
 		} else {
 			keyframe = runAnimation.getKeyFrame(elapsed, true);
 			batch.draw(keyframe, (-Gdx.graphics.getWidth() / 2)* .9f, gpz_y, gpz_width, gpz_height);
