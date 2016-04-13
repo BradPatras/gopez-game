@@ -10,9 +10,12 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+
+import javafx.scene.paint.Color;
 
 public class MainGame extends ApplicationAdapter implements GestureDetector.GestureListener {
 	SpriteBatch batch;
@@ -27,6 +30,7 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 	OrthographicCamera camera;
 	Animation runAnimation;
 	Animation dblJumpAnimation;
+	ShapeRenderer shapeRenderer;
 
 	//Physics
 	float gpz_v;
@@ -117,7 +121,14 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 			keyframe = runAnimation.getKeyFrame(elapsed, true);
 			batch.draw(keyframe, (-Gdx.graphics.getWidth() / 2)* .9f, gpz_y, gpz_width, gpz_height);
 		}
+
 		batch.end();
+
+		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+		shapeRenderer.setColor(com.badlogic.gdx.graphics.Color.BLACK);
+		shapeRenderer.rect(0,ground_y,100,100);
+		shapeRenderer.end();
+
 		bk1-=10;
 
 		if (Math.abs(bk1) > (Gdx.graphics.getWidth()/2) + newWidth){
