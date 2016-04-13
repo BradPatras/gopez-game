@@ -30,21 +30,26 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 	OrthographicCamera camera;
 	Animation runAnimation;
 	Animation dblJumpAnimation;
-	ShapeRenderer shapeRenderer;
 
 	//Physics
-	float gpz_v;
 	float gravity = 3;
-	float gpz_jump_v;
-	int jumps;
-
 	float bk_v;
+	float ground_y;
 
-	//dimensions
+	//gpz dimensions and stuff
 	float gpz_height;
 	float gpz_width;
 	float gpz_y;
-	float ground_y;
+	float gpz_v;
+	float gpz_jump_v;
+	int jumps;
+
+	//enemy dimensions
+	float enemy_height;
+	float enemy_width;
+	float enemy_y;
+	float enemy_x;
+	float enemy_v;
 
 	@Override
 	public void create () {
@@ -74,17 +79,21 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		bk1 = -Gdx.graphics.getWidth()/2;
 
 
+		//Calculate and initialize values relative to screen size
 		gpz_height = Gdx.graphics.getHeight() * .15f;
 		gpz_width = gpz_height * .645f;
 		gpz_v = 0;
 		ground_y = ((-Gdx.graphics.getHeight() * .8f)/2);
-
 		gpz_jump_v = gpz_height *.15f;
 		gravity = gpz_jump_v*.0375f;
-
 		bk_v = gpz_jump_v * .33f;
-
 		gpz_y = ground_y;
+
+		enemy_height = gpz_height * .5f;
+		enemy_width = enemy_height;
+		enemy_y = 0;
+		enemy_x = Gdx.graphics.getWidth() / 2f;
+		enemy_v = gpz_jump_v * .85f;
 
 	}
 
@@ -132,18 +141,12 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 
 		batch.end();
 
-//		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-//		shapeRenderer.setColor(com.badlogic.gdx.graphics.Color.BLACK);
-//		shapeRenderer.rect(0,ground_y,100,100);
-//		shapeRenderer.end();
-
 		bk1-=bk_v;
 
 		if (Math.abs(bk1) > (Gdx.graphics.getWidth()/2) + newWidth){
 			bk1 = -Gdx.graphics.getWidth()/2;
 		}
 	}
-
 
 	@Override
 	public boolean touchDown(float x, float y, int pointer, int button) {
