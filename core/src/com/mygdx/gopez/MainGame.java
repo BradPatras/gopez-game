@@ -34,9 +34,11 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 
 	//Physics
 	float gpz_v;
-	float gravity = 1;
-
+	float gravity = 3;
+	float gpz_jump_v;
 	int jumps;
+
+	float bk_v;
 
 	//dimensions
 	float gpz_height;
@@ -76,6 +78,11 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		gpz_width = gpz_height * .645f;
 		gpz_v = 0;
 		ground_y = ((-Gdx.graphics.getHeight() * .8f)/2);
+
+		gpz_jump_v = gpz_height *.15f;
+		gravity = gpz_jump_v*.0375f;
+
+		bk_v = gpz_jump_v * .33f;
 
 		gpz_y = ground_y;
 
@@ -125,12 +132,12 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 
 		batch.end();
 
-		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-		shapeRenderer.setColor(com.badlogic.gdx.graphics.Color.BLACK);
-		shapeRenderer.rect(0,ground_y,100,100);
-		shapeRenderer.end();
+//		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+//		shapeRenderer.setColor(com.badlogic.gdx.graphics.Color.BLACK);
+//		shapeRenderer.rect(0,ground_y,100,100);
+//		shapeRenderer.end();
 
-		bk1-=10;
+		bk1-=bk_v;
 
 		if (Math.abs(bk1) > (Gdx.graphics.getWidth()/2) + newWidth){
 			bk1 = -Gdx.graphics.getWidth()/2;
@@ -141,9 +148,9 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 	@Override
 	public boolean touchDown(float x, float y, int pointer, int button) {
 		if (jumps ==0 ) {
-			gpz_v = 40;
-			jumps++;
+			gpz_v = gpz_jump_v;
 		}
+		jumps++;
 		return false;
 	}
 
