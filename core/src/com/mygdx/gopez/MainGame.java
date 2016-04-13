@@ -28,13 +28,17 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 	Animation runAnimation;
 	Animation dblJumpAnimation;
 
-	//Physics variables
+	//Physics
 	float gpz_v;
 	float gravity = 1;
-	float gpz_y;
-	float ground_y;
+
 	int jumps;
 
+	//dimensions
+	float gpz_height;
+	float gpz_width;
+	float gpz_y;
+	float ground_y;
 
 	@Override
 	public void create () {
@@ -63,8 +67,12 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		runAnimation = new Animation(1f/8f,runAnimations);
 		bk1 = -Gdx.graphics.getWidth()/2;
 
+
+		gpz_height = Gdx.graphics.getHeight() * .15f;
+		gpz_width = gpz_height * .645f;
 		gpz_v = 0;
-		ground_y = (-Gdx.graphics.getHeight()/2) + 260;
+		ground_y = ((-Gdx.graphics.getHeight() * .8f)/2);
+
 		gpz_y = ground_y;
 
 	}
@@ -99,15 +107,15 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 			jumps = 0;
 		}
 		if (jumps == 1) {
-			batch.draw(jumpAtlas.getRegions().get(0), (-Gdx.graphics.getWidth() / 2) + 50, gpz_y, 240, 372);
+			batch.draw(jumpAtlas.getRegions().get(0), (-Gdx.graphics.getWidth() / 2) * .9f, gpz_y, gpz_width, gpz_height);
 
 		} else if(jumps == 2) {
 			keyframe = dblJumpAnimation.getKeyFrame(elapsed, true);
-			batch.draw(keyframe, (-Gdx.graphics.getWidth() / 2) + 50, gpz_y, 240, 372);
+			batch.draw(keyframe, (-Gdx.graphics.getWidth() / 2) * .9f, gpz_y, gpz_width, gpz_height);
 
 		} else {
 			keyframe = runAnimation.getKeyFrame(elapsed, true);
-			batch.draw(keyframe, (-Gdx.graphics.getWidth() / 2) + 50, gpz_y, 240, 372);
+			batch.draw(keyframe, (-Gdx.graphics.getWidth() / 2)* .9f, gpz_y, gpz_width, gpz_height);
 		}
 		batch.end();
 		bk1-=10;
