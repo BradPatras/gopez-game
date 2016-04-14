@@ -26,10 +26,12 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 	private TextureAtlas bkAtlas;
 	private TextureAtlas jumpAtlas;
 	private TextureAtlas dblJumpAtlas;
+	private TextureAtlas enemyAtlas;
 	private float elapsed;
 	OrthographicCamera camera;
 	Animation runAnimation;
 	Animation dblJumpAnimation;
+	Animation enemyAnimation;
 
 	//Physics
 	float gravity = 3;
@@ -61,21 +63,24 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		assets.load("gpz_bk.pack", TextureAtlas.class);
 		assets.load("gpzjump.pack", TextureAtlas.class);
 		assets.load("gpzdbljump.pack", TextureAtlas.class);
+		assets.load("enemy.pack", TextureAtlas.class);
 		assets.finishLoading();
 
 		bkAtlas = assets.get("gpz_bk.pack");
 		jumpAtlas = assets.get("gpzjump.pack");
 		dblJumpAtlas = assets.get("gpzdbljump.pack");
 		runAtlas = assets.get("gpzrun.pack");
+		enemyAtlas = assets.get("enemy.pack");
 
 		camera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-
+		Array<TextureAtlas.AtlasRegion> enemyAnimations = enemyAtlas.getRegions();
 		Array<TextureAtlas.AtlasRegion> runAnimations = runAtlas.getRegions();
 		Array<TextureAtlas.AtlasRegion> dblJumpAnimations = dblJumpAtlas.getRegions();
 		dblJumpAnimations.reverse();
 		runAnimations.reverse();
 		dblJumpAnimation = new Animation(1f/16f, dblJumpAnimations);
 		runAnimation = new Animation(1f/8f,runAnimations);
+		enemyAnimation = new Animation(1f/12f, enemyAnimations);
 		bk1 = -Gdx.graphics.getWidth()/2;
 
 
@@ -89,7 +94,7 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		bk_v = gpz_jump_v * .33f;
 		gpz_y = ground_y;
 
-		enemy_height = gpz_height * .5f;
+		enemy_height = gpz_height * .4f;
 		enemy_width = enemy_height;
 		enemy_y = 0;
 		enemy_x = Gdx.graphics.getWidth() / 2f;
@@ -104,6 +109,7 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		Gdx.gl.glClearColor(.5f, .5f, .5f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		TextureRegion keyframe;
+		TextureRegion enemyKeyframe = enemyAnimation.getKeyFrame(elapsed, true);
 		batch.begin();
 
 		float newWidth = ((float) Gdx.graphics.getHeight() / 2) / ((float) bkAtlas.getRegions().get(0).originalHeight) * (bkAtlas.getRegions().get(0).originalWidth);
@@ -115,6 +121,8 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		} else if (bk1 + newWidth > (Gdx.graphics.getWidth() / 2)) {
 			batch.draw(bkAtlas.getRegions().get(0), bk1 - newWidth, -Gdx.graphics.getHeight() / 2, newWidth, Gdx.graphics.getHeight());
 		}
+
+		batch.draw(enemyKeyframe, 0,0,enemy_width, enemy_height);
 
 		if (jumps > 0) {
 			gpz_y += gpz_v;
