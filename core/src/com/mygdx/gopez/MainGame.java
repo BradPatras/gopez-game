@@ -9,12 +9,14 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.Random;
@@ -36,6 +38,12 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 	Animation runAnimation;
 	Animation dblJumpAnimation;
 	Animation enemyAnimation;
+
+	Label score;
+	Label.LabelStyle textStyle;
+	BitmapFont font;
+
+
 
 	//Physics
 	float gravity = 3;
@@ -141,6 +149,14 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		her.setVolume(.1f);
 		r = new Random();
 		enemy_dead = false;
+
+		font = new BitmapFont();
+		textStyle = new Label.LabelStyle();
+		textStyle.font = font;
+		score = new Label("Become your own hero", textStyle);
+		score.setBounds(0, gameHeight/2 - ((gameHeight/2) - ground_y),gameWidth, 2);
+		score.setFontScale(1f,1f);
+
 	}
 
 	@Override
@@ -227,7 +243,7 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		if (Math.abs((gpz_x+(gpz_width/2f)) - (enemy_x+(enemy_width/2))) < gpz_width/2f){
 			if(Math.abs((gpz_y+(gpz_height/2f)) - (enemy_y+(enemy_height/2))) < gpz_height/2f){
 				if (jumps >0 && jumps % 2 == 0){
-
+					gpz_v = gpz_jump_v*.2f;
 					jumps--;
 					enemy_dead = true;
 				} else {
