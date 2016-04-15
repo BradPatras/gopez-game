@@ -163,15 +163,18 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 			batch.draw(bkAtlas.getRegions().get(0), bk1 - newWidth, -gameHeight / 2, newWidth, gameHeight);
 		}
 
-		if (enemy_x + enemy_width*3 < -gameWidth/2f){
+		if (enemy_x + enemy_width*3 < -gameWidth/2f || enemy_y+enemy_height< -gameHeight/2 ){
 			spawnEnemy();
 		}
-		enemy_x = enemy_x - enemy_v;
-		batch.draw(enemyKeyframe,enemy_x,enemy_y,enemy_width, enemy_height);
 
-		if (!enemy_dead) {
+		if (enemy_dead){
+
+			enemy_y -= gravity*10;
+		} else{
+			enemy_x = enemy_x - enemy_v;
 			checkCollision();
 		}
+		batch.draw(enemyKeyframe,enemy_x,enemy_y,enemy_width, enemy_height);
 
 		if (jumps > 0) {
 			gpz_y += gpz_v;
@@ -224,7 +227,7 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		if (Math.abs((gpz_x+(gpz_width/2f)) - (enemy_x+(enemy_width/2))) < gpz_width/2f){
 			if(Math.abs((gpz_y+(gpz_height/2f)) - (enemy_y+(enemy_height/2))) < gpz_height/2f){
 				if (jumps >0 && jumps % 2 == 0){
-					enemy_y = ground_y;
+
 					jumps--;
 					enemy_dead = true;
 				} else {
