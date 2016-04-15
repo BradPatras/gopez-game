@@ -3,6 +3,8 @@ package com.mygdx.gopez;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -15,12 +17,14 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+import java.util.Random;
+
 import javafx.scene.paint.Color;
 
 public class MainGame extends ApplicationAdapter implements GestureDetector.GestureListener {
 	SpriteBatch batch;
 	Texture img;
-	int bk1;
+	float bk1;
 	private AssetManager assets;
 	private TextureAtlas runAtlas;
 	private TextureAtlas bkAtlas;
@@ -37,11 +41,13 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 	float gravity = 3;
 	float bk_v;
 	float ground_y;
+	Random r;
 
 	//gpz dimensions and stuff
 	float gpz_height;
 	float gpz_width;
 	float gpz_y;
+	float gpz_x;
 	float gpz_v;
 	float gpz_jump_v;
 	int jumps;
@@ -52,6 +58,32 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 	float enemy_y;
 	float enemy_x;
 	float enemy_v;
+	boolean enemy_dead;
+
+	float gameHeight;
+	float gameWidth;
+
+	Music her;
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		her.dispose();
+	}
+
+	@Override
+	public void pause() {
+		super.pause();
+		her.pause();
+	}
+
+	@Override
+	public void resume() {
+		super.resume();
+		her.play();
+		her.setVolume(.1f);
+		her.setLooping(true);
+	}
 
 	@Override
 	public void create () {
@@ -66,13 +98,17 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		assets.load("enemy.pack", TextureAtlas.class);
 		assets.finishLoading();
 
+		gameHeight = Gdx.graphics.getHeight();
+		gameWidth = Gdx.graphics.getWidth();
+
+		her = Gdx.audio.newMusic(Gdx.files.internal("her.mp3"));
 		bkAtlas = assets.get("gpz_bk.pack");
 		jumpAtlas = assets.get("gpzjump.pack");
 		dblJumpAtlas = assets.get("gpzdbljump.pack");
 		runAtlas = assets.get("gpzrun.pack");
 		enemyAtlas = assets.get("enemy.pack");
 
-		camera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		camera = new OrthographicCamera(gameWidth,gameHeight);
 		Array<TextureAtlas.AtlasRegion> enemyAnimations = enemyAtlas.getRegions();
 		Array<TextureAtlas.AtlasRegion> runAnimations = runAtlas.getRegions();
 		Array<TextureAtlas.AtlasRegion> dblJumpAnimations = dblJumpAtlas.getRegions();
@@ -81,14 +117,15 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		dblJumpAnimation = new Animation(1f/16f, dblJumpAnimations);
 		runAnimation = new Animation(1f/8f,runAnimations);
 		enemyAnimation = new Animation(1f/12f, enemyAnimations);
-		bk1 = -Gdx.graphics.getWidth()/2;
+		bk1 = -gameWidth/2;
 
 
 		//Calculate and initialize values relative to screen size
-		gpz_height = Gdx.graphics.getHeight() * .15f;
+		gpz_x = (-gameWidth / 2) * .9f;
+		gpz_height = gameHeight * .15f;
 		gpz_width = gpz_height * .645f;
 		gpz_v = 0;
-		ground_y = ((-Gdx.graphics.getHeight() * .8f)/2);
+		ground_y = ((-gameHeight * .8f)/2);
 		gpz_jump_v = gpz_height *.15f;
 		gravity = gpz_jump_v*.0375f;
 		bk_v = gpz_jump_v * .33f;
@@ -97,9 +134,13 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		enemy_height = gpz_height * .4f;
 		enemy_width = enemy_height;
 		enemy_y = 0;
-		enemy_x = Gdx.graphics.getWidth() / 2f;
-		enemy_v = gpz_jump_v * .85f;
-
+		enemy_x = gameWidth / 2f;
+		enemy_v = gpz_jump_v * .4f;
+		her.play();
+		her.setLooping(true);
+		her.setVolume(.1f);
+		r = new Random();
+		enemy_dead = false;
 	}
 
 	@Override
@@ -112,17 +153,25 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		TextureRegion enemyKeyframe = enemyAnimation.getKeyFrame(elapsed, true);
 		batch.begin();
 
-		float newWidth = ((float) Gdx.graphics.getHeight() / 2) / ((float) bkAtlas.getRegions().get(0).originalHeight) * (bkAtlas.getRegions().get(0).originalWidth);
+		float newWidth = (gameHeight / 2f) / ((float) bkAtlas.getRegions().get(0).originalHeight) * (bkAtlas.getRegions().get(0).originalWidth);
 
-		batch.draw(bkAtlas.getRegions().get(0), bk1, -Gdx.graphics.getHeight() / 2, newWidth, Gdx.graphics.getHeight());
+		batch.draw(bkAtlas.getRegions().get(0), bk1, -gameHeight / 2, newWidth, gameHeight);
 
-		if (bk1 + newWidth < ((Gdx.graphics.getWidth() / 2))) {
-			batch.draw(bkAtlas.getRegions().get(0), bk1 + newWidth, -Gdx.graphics.getHeight() / 2, newWidth, Gdx.graphics.getHeight());
-		} else if (bk1 + newWidth > (Gdx.graphics.getWidth() / 2)) {
-			batch.draw(bkAtlas.getRegions().get(0), bk1 - newWidth, -Gdx.graphics.getHeight() / 2, newWidth, Gdx.graphics.getHeight());
+		if (bk1 + newWidth < ((gameWidth / 2))) {
+			batch.draw(bkAtlas.getRegions().get(0), bk1 + newWidth, -gameHeight / 2, newWidth, gameHeight);
+		} else if (bk1 + newWidth > (gameWidth / 2)) {
+			batch.draw(bkAtlas.getRegions().get(0), bk1 - newWidth, -gameHeight / 2, newWidth, gameHeight);
 		}
 
-		batch.draw(enemyKeyframe, 0,0,enemy_width, enemy_height);
+		if (enemy_x + enemy_width*3 < -gameWidth/2f){
+			spawnEnemy();
+		}
+		enemy_x = enemy_x - enemy_v;
+		batch.draw(enemyKeyframe,enemy_x,enemy_y,enemy_width, enemy_height);
+
+		if (!enemy_dead) {
+			checkCollision();
+		}
 
 		if (jumps > 0) {
 			gpz_y += gpz_v;
@@ -136,30 +185,63 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		}
 		if (jumps >0){
 			if (jumps % 2 != 0) {
-				batch.draw(jumpAtlas.getRegions().get(0), (-Gdx.graphics.getWidth() / 2) * .9f, gpz_y, gpz_width, gpz_height);
+				batch.draw(jumpAtlas.getRegions().get(0),gpz_x, gpz_y, gpz_width, gpz_height);
 
 			} else {
 				keyframe = dblJumpAnimation.getKeyFrame(elapsed, true);
-				batch.draw(keyframe, (-Gdx.graphics.getWidth() / 2) * .9f, gpz_y, gpz_width, gpz_height);
+				batch.draw(keyframe, gpz_x, gpz_y, gpz_width, gpz_height);
 			}
 		} else {
 			keyframe = runAnimation.getKeyFrame(elapsed, true);
-			batch.draw(keyframe, (-Gdx.graphics.getWidth() / 2)* .9f, gpz_y, gpz_width, gpz_height);
+			batch.draw(keyframe, gpz_x, gpz_y, gpz_width, gpz_height);
 		}
 
 		batch.end();
 
 		bk1-=bk_v;
 
-		if (Math.abs(bk1) > (Gdx.graphics.getWidth()/2) + newWidth){
-			bk1 = -Gdx.graphics.getWidth()/2;
+		if (Math.abs(bk1) > (gameWidth/2) + newWidth){
+			bk1 = -gameWidth/2f;
 		}
+	}
+
+	private void spawnEnemy(){
+		Gdx.app.log("jump v = ",gpz_jump_v + "") ;
+
+		Gdx.app.log("enemy v = ",enemy_v + "") ;
+		if (enemy_v >= gpz_jump_v*.8f) {
+			enemy_v = gpz_jump_v * .8f;
+		}else{
+			enemy_v += gpz_jump_v/(enemy_v*20);
+		}
+		enemy_x =  gameWidth/2f;
+		enemy_y = -r.nextInt(Math.abs((int)(ground_y/2f))) + ground_y/2f;
+		enemy_dead = false;
+
+	}
+
+	private void checkCollision(){
+		if (Math.abs((gpz_x+(gpz_width/2f)) - (enemy_x+(enemy_width/2))) < gpz_width/2f){
+			if(Math.abs((gpz_y+(gpz_height/2f)) - (enemy_y+(enemy_height/2))) < gpz_height/2f){
+				if (jumps >0 && jumps % 2 == 0){
+					enemy_y = ground_y;
+					jumps--;
+					enemy_dead = true;
+				} else {
+					gpz_y = ground_y;
+					jumps = 0;
+					gpz_v = 0;
+				}
+		}
+	}
 	}
 
 	@Override
 	public boolean touchDown(float x, float y, int pointer, int button) {
 		if (jumps ==0 ) {
 			gpz_v = gpz_jump_v;
+		} else if (jumps % 2 != 0) {
+			gpz_v -= gpz_jump_v/2f;
 		}
 		jumps++;
 		return false;
