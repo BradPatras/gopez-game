@@ -24,6 +24,13 @@ import java.util.Random;
 import javafx.scene.paint.Color;
 
 public class MainGame extends ApplicationAdapter implements GestureDetector.GestureListener {
+
+	public interface Callback {
+		void onGameOver(int score);
+	}
+
+
+	private Callback callback;
 	SpriteBatch batch;
 	Texture img;
 	float bk1;
@@ -33,17 +40,19 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 	private TextureAtlas jumpAtlas;
 	private TextureAtlas dblJumpAtlas;
 	private TextureAtlas enemyAtlas;
+	private TextureAtlas deadAtlas;
 	private float elapsed;
 	OrthographicCamera camera;
 	Animation runAnimation;
 	Animation dblJumpAnimation;
 	Animation enemyAnimation;
 
+	int scoreValue;
 	Label score;
 	Label.LabelStyle textStyle;
 	BitmapFont font;
 
-
+	boolean gameOver;
 
 	//Physics
 	float gravity = 3;
@@ -59,6 +68,7 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 	float gpz_v;
 	float gpz_jump_v;
 	int jumps;
+	boolean gpz_dead;
 
 	//enemy dimensions
 	float enemy_height;
@@ -72,6 +82,10 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 	float gameWidth;
 
 	Music her;
+
+	public void setCallback(Callback c){
+		this.callback = c;
+	}
 
 	@Override
 	public void dispose() {
@@ -104,6 +118,7 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		assets.load("gpzjump.pack", TextureAtlas.class);
 		assets.load("gpzdbljump.pack", TextureAtlas.class);
 		assets.load("enemy.pack", TextureAtlas.class);
+		assets.load("gpzdead.pack", TextureAtlas.class);
 		assets.finishLoading();
 
 		gameHeight = Gdx.graphics.getHeight();
@@ -115,6 +130,7 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		dblJumpAtlas = assets.get("gpzdbljump.pack");
 		runAtlas = assets.get("gpzrun.pack");
 		enemyAtlas = assets.get("enemy.pack");
+		deadAtlas = assets.get("gpzdead.pack");
 
 		camera = new OrthographicCamera(gameWidth,gameHeight);
 		Array<TextureAtlas.AtlasRegion> enemyAnimations = enemyAtlas.getRegions();
@@ -157,71 +173,97 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 		score.setBounds(0, gameHeight/2 - ((gameHeight/2) - ground_y),gameWidth, 2);
 		score.setFontScale(1f,1f);
 
+		scoreValue =0;
+
 	}
 
 	@Override
 	public void render () {
-		elapsed += Gdx.graphics.getDeltaTime();
-		batch.setProjectionMatrix(camera.combined);
-		Gdx.gl.glClearColor(.5f, .5f, .5f, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		TextureRegion keyframe;
-		TextureRegion enemyKeyframe = enemyAnimation.getKeyFrame(elapsed, true);
-		batch.begin();
 
-		float newWidth = (gameHeight / 2f) / ((float) bkAtlas.getRegions().get(0).originalHeight) * (bkAtlas.getRegions().get(0).originalWidth);
 
-		batch.draw(bkAtlas.getRegions().get(0), bk1, -gameHeight / 2, newWidth, gameHeight);
 
-		if (bk1 + newWidth < ((gameWidth / 2))) {
-			batch.draw(bkAtlas.getRegions().get(0), bk1 + newWidth, -gameHeight / 2, newWidth, gameHeight);
-		} else if (bk1 + newWidth > (gameWidth / 2)) {
-			batch.draw(bkAtlas.getRegions().get(0), bk1 - newWidth, -gameHeight / 2, newWidth, gameHeight);
-		}
+			elapsed += Gdx.graphics.getDeltaTime();
+			batch.setProjectionMatrix(camera.combined);
+			Gdx.gl.glClearColor(.5f, .5f, .5f, 1);
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+			TextureRegion keyframe;
+			TextureRegion enemyKeyframe = enemyAnimation.getKeyFrame(elapsed, true);
+			batch.begin();
 
-		if (enemy_x + enemy_width*3 < -gameWidth/2f || enemy_y+enemy_height< -gameHeight/2 ){
-			spawnEnemy();
-		}
+			float newWidth = (gameHeight / 2f) / ((float) bkAtlas.getRegions().get(0).originalHeight) * (bkAtlas.getRegions().get(0).originalWidth);
 
-		if (enemy_dead){
+			batch.draw(bkAtlas.getRegions().get(0), bk1, -gameHeight / 2, newWidth, gameHeight);
 
-			enemy_y -= gravity*10;
-		} else{
-			enemy_x = enemy_x - enemy_v;
-			checkCollision();
-		}
-		batch.draw(enemyKeyframe,enemy_x,enemy_y,enemy_width, enemy_height);
-
-		if (jumps > 0) {
-			gpz_y += gpz_v;
-			gpz_v = gpz_v - gravity;
-		}
-
-		if (gpz_y <= ground_y) {
-			gpz_v = 0;
-			gpz_y = ground_y;
-			jumps = 0;
-		}
-		if (jumps >0){
-			if (jumps % 2 != 0) {
-				batch.draw(jumpAtlas.getRegions().get(0),gpz_x, gpz_y, gpz_width, gpz_height);
-
-			} else {
-				keyframe = dblJumpAnimation.getKeyFrame(elapsed, true);
-				batch.draw(keyframe, gpz_x, gpz_y, gpz_width, gpz_height);
+			if (bk1 + newWidth < ((gameWidth / 2))) {
+				batch.draw(bkAtlas.getRegions().get(0), bk1 + newWidth, -gameHeight / 2, newWidth, gameHeight);
+			} else if (bk1 + newWidth > (gameWidth / 2)) {
+				batch.draw(bkAtlas.getRegions().get(0), bk1 - newWidth, -gameHeight / 2, newWidth, gameHeight);
 			}
-		} else {
-			keyframe = runAnimation.getKeyFrame(elapsed, true);
-			batch.draw(keyframe, gpz_x, gpz_y, gpz_width, gpz_height);
-		}
 
+		if (!gameOver) {
+
+			if (enemy_x + enemy_width * 3 < -gameWidth / 2f || enemy_y + enemy_height < -gameHeight / 2) {
+				spawnEnemy();
+			}
+
+			if (enemy_dead) {
+
+				enemy_y -= gravity * 10;
+			} else {
+				enemy_x = enemy_x - enemy_v;
+				checkCollision();
+			}
+			batch.draw(enemyKeyframe, enemy_x, enemy_y, enemy_width, enemy_height);
+
+
+			if (!gpz_dead) {
+
+				if (jumps > 0) {
+					gpz_y += gpz_v;
+					gpz_v = gpz_v - gravity;
+				}
+
+				if (gpz_y <= ground_y) {
+					gpz_v = 0;
+					gpz_y = ground_y;
+					jumps = 0;
+				}
+
+				if (jumps > 0) {
+					if (jumps % 2 != 0) {
+						batch.draw(jumpAtlas.getRegions().get(0), gpz_x, gpz_y, gpz_width, gpz_height);
+
+					} else {
+						keyframe = dblJumpAnimation.getKeyFrame(elapsed, true);
+						batch.draw(keyframe, gpz_x, gpz_y, gpz_width, gpz_height);
+					}
+				} else {
+					keyframe = runAnimation.getKeyFrame(elapsed, true);
+					batch.draw(keyframe, gpz_x, gpz_y, gpz_width, gpz_height);
+				}
+			} else {
+
+				if (gpz_y + gpz_height <= -gameHeight / 2) {
+					gameOver = true;
+					callback.onGameOver(scoreValue);
+				} else {
+
+					gpz_y += gpz_v;
+					gpz_v = gpz_v - gravity;
+
+					batch.draw(deadAtlas.getRegions().get(0), gpz_x, gpz_y, gpz_width, gpz_height);
+				}
+
+			}
+
+
+			bk1 -= bk_v;
+
+			if (Math.abs(bk1) > (gameWidth / 2) + newWidth) {
+				bk1 = -gameWidth / 2f;
+			}
+		}
 		batch.end();
-
-		bk1-=bk_v;
-
-		if (Math.abs(bk1) > (gameWidth/2) + newWidth){
-			bk1 = -gameWidth/2f;
-		}
 	}
 
 	private void spawnEnemy(){
@@ -247,7 +289,8 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 					jumps--;
 					enemy_dead = true;
 				} else {
-					gpz_y = ground_y;
+					gpz_dead = true;
+
 					jumps = 0;
 					gpz_v = 0;
 				}

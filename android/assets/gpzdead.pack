@@ -1,0 +1,12 @@
+
+gpz_dead1.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+gpzdead1
+  rotate: false
+  xy: 2, 2
+  size: 40, 62
+  orig: 40, 62
+  offset: 0, 0
+  index: -1
