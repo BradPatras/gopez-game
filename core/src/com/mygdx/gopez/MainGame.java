@@ -287,6 +287,7 @@ public class MainGame extends ApplicationAdapter implements GestureDetector.Gest
 				if (jumps >0 && jumps % 2 == 0){
 					gpz_v = gpz_jump_v*.2f;
 					jumps--;
+					scoreValue++;
 					enemy_dead = true;
 				} else {
 					gpz_dead = true;
