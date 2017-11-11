@@ -21,7 +21,6 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.Random;
 
-import javafx.scene.paint.Color;
 
 public class MainGame extends ApplicationAdapter implements GestureDetector.GestureListener {
 
